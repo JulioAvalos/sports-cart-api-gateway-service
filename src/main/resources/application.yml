@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: "*"    # matches all origins
+            allowedMethods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        # 1) Auth (no strip)
+        - id: auth-service
+          uri: http://localhost:8083    # user-service
+          predicates:
+            - Path=/api/auth/**
+
+        # 2) User endpoints (strip /api)
+        - id: user-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/users/**
+
+        # 3) Order endpoints (strip /api)
+        - id: order-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/order/**
+
+        # 4) Product endpoints (strip /api)
+        - id: product-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/products/**
